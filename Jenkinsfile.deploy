@@ -1,0 +1,69 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_DEFAULT_REGION = 'ap-south-1'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'dev', url: 'https://github.com/deepakkine/aws-terraform-jenkins-infra.git'
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                sh '''
+                cd environments/dev
+                terraform init -reconfigure
+                '''
+            }
+        }
+
+        stage('Terraform Format Check') {
+            steps {
+                sh '''
+                cd environments/dev
+                terraform fmt -check -recursive ../..
+                '''
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                sh '''
+                cd environments/dev
+                terraform validate
+                '''
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                sh '''
+                cd environments/dev
+                terraform plan -out=tfplan
+                '''
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                sh '''
+                cd environments/dev
+                terraform apply -auto-approve tfplan
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Terraform dev infrastructure deployed successfully.'
+        }
+        failure {
+            echo 'Terraform dev deployment failed. Check console output.'
+        }
+    }
+}
