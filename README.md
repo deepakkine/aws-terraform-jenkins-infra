@@ -299,6 +299,37 @@ sudo systemctl show jenkins --property=Environment
 
 A Jenkins pipeline was created to automate the Terraform deployment workflow. The pipeline pulls code from GitHub, initializes Terraform, validates the code, creates a plan, and applies the infrastructure changes.
 
+## Jenkins Pipeline as Code
+
+This repository includes Jenkins pipeline files so the deployment and destroy workflows are version-controlled with the Terraform code.
+
+| File | Purpose |
+|------|---------|
+| `Jenkinsfile.deploy` | Runs Terraform init, format check, validate, plan, and apply |
+| `Jenkinsfile.destroy` | Runs Terraform init and destroy to remove AWS resources |
+
+These files can be used in Jenkins by selecting:
+
+```text
+Pipeline script from SCM
+```
+
+Deploy job configuration:
+
+```text
+Repository URL: https://github.com/deepakkine/aws-terraform-jenkins-infra.git
+Branch: dev
+Script Path: Jenkinsfile.deploy
+```
+
+Destroy job configuration:
+
+```text
+Repository URL: https://github.com/deepakkine/aws-terraform-jenkins-infra.git
+Branch: dev
+Script Path: Jenkinsfile.destroy
+```
+
 Jenkins job name:
 
 ```text
